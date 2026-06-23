@@ -4,6 +4,8 @@ package com.ems.controller;
 import com.ems.dto.Department;
 import com.ems.service.DepartmentService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +20,7 @@ public class DepartmentController {
 
     // Add Department
     @PostMapping
-    public Department addDepartment(@RequestBody Department department) {
+    public Department addDepartment(@Valid @RequestBody Department department) {
         return departmentService.addDepartment(department);
     }
 
