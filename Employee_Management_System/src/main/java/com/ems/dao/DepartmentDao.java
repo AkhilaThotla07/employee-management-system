@@ -38,6 +38,10 @@ public class DepartmentDao {
 		repository.delete(dept);
 	}
 	
+	public Optional<Department> findByDepartmentName(String departmentName){
+	    return repository.findByDepartmentName(departmentName);
+	}
+	
 	
 	
 	

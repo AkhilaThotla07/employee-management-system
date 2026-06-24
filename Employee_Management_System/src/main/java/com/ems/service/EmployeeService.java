@@ -6,24 +6,22 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ems.dao.DepartmentDao;
 import com.ems.dao.EmployeeDao;
+import com.ems.dto.Department;
 import com.ems.dto.Employee;
+import com.ems.dto.EmployeeRequest;
+import com.ems.exceptions.DepartmentNotFoundException;
+import com.ems.exceptions.EmployeeAlreadyExistsException;
+import com.ems.exceptions.EmployeeNotFoundException;
 
 @Service
 public class EmployeeService {
 
     @Autowired
     private EmployeeDao employeeDao;
-
-    public Employee addEmployee(Employee employee) {
-        Optional<Employee> existingEmployee = employeeDao.findEmployeeById(employee.getId());
-
-        if (existingEmployee.isPresent()) {
-            throw new RuntimeException("Employee already exists");
-        }
-
-        return employeeDao.addEmployee(employee);
-    }
+    @Autowired
+    private DepartmentDao departmentDao;
 
     public Employee findEmployeeById(String id) {
         Optional<Employee> employee = employeeDao.findEmployeeById(id);
@@ -32,13 +30,37 @@ public class EmployeeService {
             return employee.get();
         }
 
-        throw new RuntimeException("Employee not found");
+        throw new EmployeeNotFoundException("Employee not found");
     }
 
+    
+    
+    public Employee addEmployee(EmployeeRequest request) {
+
+        Department department = departmentDao.findDepartmentById(request.getDepartmentId())
+                .orElseThrow(() -> new DepartmentNotFoundException("Department not found"));
+
+        Employee employee = new Employee();
+        employee.setId(request.getId());
+        employee.setName(request.getName());
+        employee.setEmail(request.getEmail());
+        employee.setSalary(request.getSalary());
+        employee.setDesignation(request.getDesignation());
+        employee.setJoiningDate(request.getJoiningDate());
+        employee.setDepartment(department);
+
+        return employeeDao.addEmployee(employee);
+    }
+
+    
+    
     public List<Employee> findAllEmployees() {
         return employeeDao.findAllEmployees();
     }
 
+    
+    
+    
     public Employee updateEmployee(String id, Employee employee) {
         Optional<Employee> existingEmployee = employeeDao.findEmployeeById(id);
 
@@ -46,9 +68,11 @@ public class EmployeeService {
             return employeeDao.updateEmployee(id, employee);
         }
 
-        throw new RuntimeException("Employee not found");
+        throw new EmployeeNotFoundException("Employee not found");
     }
 
+    
+    
     public Employee deleteEmployee(String id) {
         Optional<Employee> employee = employeeDao.findEmployeeById(id);
 
@@ -58,6 +82,10 @@ public class EmployeeService {
             return emp;
         }
 
-        throw new RuntimeException("Employee not found");
+        throw new EmployeeNotFoundException("Employee not found");
+    }
+    
+    public List<Employee> findEmployeesByDepartment(String departmentName){
+        return employeeDao.findByDepartmentName(departmentName);
     }
 }

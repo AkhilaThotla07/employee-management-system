@@ -48,4 +48,8 @@ public class EmployeeDao {
     public void deleteEmployee(Employee employee) {
         employeeRepository.delete(employee);
     }
+    
+    public List<Employee> findByDepartmentName(String departmentName){
+        return employeeRepository.findByDepartmentDepartmentName(departmentName);
+    }
 }

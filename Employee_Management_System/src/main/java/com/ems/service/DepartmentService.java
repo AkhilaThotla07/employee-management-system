@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.ems.dao.DepartmentDao;
 import com.ems.dto.Department;
+import com.ems.exceptions.DepartmentAlreadyExistException;
+import com.ems.exceptions.DepartmentNotFoundException;
 @Service
 public class DepartmentService {
 	@Autowired
@@ -18,7 +20,7 @@ public class DepartmentService {
 		if(department.isPresent()) {
 			return department.get();
 		}
-		throw new RuntimeException("Department not found");
+		throw  new DepartmentNotFoundException("Department not found");
 	}
 	
 //	public Department addDepartment(Department department) {
@@ -29,12 +31,31 @@ public class DepartmentService {
 //			} 
 //			return dao.addDepartment(department);
 //	}
-//	
+	
+	public Department findDepartmentByName(String departmentName) {
+	    Optional<Department> dept = dao.findByDepartmentName(departmentName);
+	    if(dept.isPresent()) {
+	        return dept.get();
+	    }
+	    throw new DepartmentNotFoundException("Department not found");
+	}
+	
+	
+	
+	
 	// if id is auto generated
+	
 	public Department addDepartment(Department department) {
+		 Optional<Department> existingDept =dao.findByDepartmentName(department.getDepartmentName());
+
+		    if(existingDept.isPresent()) {
+		        throw new DepartmentAlreadyExistException("Department already exists");
+		    }
 	    department.setId(null);
 	    return dao.addDepartment(department);
 	}
+	
+	
 	
 	public Department updateDepartment(Long id, Department department) {
 	    Optional<Department> dept = dao.findDepartmentById(id);
@@ -42,8 +63,10 @@ public class DepartmentService {
 	        department.setId(id);
 	        return dao.updateDepartment(id, department);
 	    }
-	    throw new RuntimeException("Department not found");
+	    throw new DepartmentNotFoundException("Department not found");
 	}
+	
+	
 	
 	public Department deleteDepartment(Long id) {
 		Optional<Department> dept1=dao.findDepartmentById(id);
@@ -52,8 +75,11 @@ public class DepartmentService {
 			dao.deleteDepartment(dept2);
 			return dept2;
 		}
-		throw new RuntimeException("Department not found");
+		throw new DepartmentNotFoundException("Department not found");
 	}
+	
+	
+	
 	
 	public List<Department> findAllDepartments(){
 		return dao.findAllDepartments();
